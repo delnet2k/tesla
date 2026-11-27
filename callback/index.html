@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>Tesla Sign-in</title>
+<style>
+  /* Tesla sends the browser here after sign-in with ?code=...; this page only shows it to copy. Nothing is stored or sent anywhere. */
+  :root { --bg: #f6f2ef; --tile: #ffffff; --ink: #211d1b; --muted: #6b625d; --edge: #e4dcd6; --accent: #c2410c; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #161312; --tile: #241f1d; --ink: #f4eeea; --muted: #a89d97; --edge: #352e2b; --accent: #fb923c; }
+  }
+  :root[data-theme="dark"] { --bg: #161312; --tile: #241f1d; --ink: #f4eeea; --muted: #a89d97; --edge: #352e2b; --accent: #fb923c; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 640px; margin: 0 auto; padding: 32px 16px; }
+  h1 { font-size: 24px; margin: 0 0 12px; }
+  p { color: var(--muted); }
+  .box { background: var(--tile); border: 1px solid var(--edge); border-radius: 12px; padding: 14px; word-break: break-all;
+         font: 15px/1.4 ui-monospace, Menlo, monospace; user-select: all; }
+  button { margin-top: 14px; padding: 12px 20px; font: inherit; border-radius: 10px; border: 0; background: var(--accent); color: #fff; }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title">Tesla sign-in</h1>
+  <p id="msg">No sign-in code on this page.</p>
+  <div class="box" id="code" hidden></div>
+  <button type="button" id="copy" hidden>Copy</button>
+</main>
+<script>
+  var q = new URLSearchParams(location.search);
+  var code = q.get('code'), err = q.get('error');
+  if (code) {
+    document.getElementById('msg').textContent = 'Copy this and paste it to Claude. It only works for a few minutes and is useless without the app secret.';
+    var box = document.getElementById('code'); box.textContent = code; box.hidden = false;
+    var b = document.getElementById('copy'); b.hidden = false;
+    b.onclick = function () { navigator.clipboard.writeText(code).then(function () { b.textContent = 'Copied'; }); };
+  } else if (err) {
+    document.getElementById('msg').textContent = 'Tesla said: ' + err + (q.get('error_description') ? ' - ' + q.get('error_description') : '');
+  }
+  // Drop the code from the address bar and history once shown.
+  history.replaceState(null, '', location.pathname);
+</script>
+</body>
+</html>
